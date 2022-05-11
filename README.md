@@ -127,10 +127,10 @@ yarn run ts-node --files .\scripts\Ballot\deployment.ts "arg1" "arg2" "arg3
   * Deploy
   * Query proposals
   * Give vote right passing an address as input
-  * Cast a vote to a ballot passing contract address and proposal as input and using the wallet in * environment
+  * Cast a vote to a ballot passing contract address and proposal as input and using the wallet in environment
   * Delegate my vote passing  user address as input and using the wallet in environment
   * Query voting result and print to console
 * Publish the project in Github
 * Run the scripts with a set of proposals, cast and delegate votes and inspect results
-* Write a report detailing the addresses, transaction hashes, description of the operation script * being executed and console output from script execution for each step (Deployment, giving voting * rights, casting/delegating and querying results).
+* Write a report detailing the addresses, transaction hashes, description of the operation script being executed and console output from script execution for each step (Deployment, giving voting rights, casting/delegating and querying results).
 * (Extra) Use TDD methodology
