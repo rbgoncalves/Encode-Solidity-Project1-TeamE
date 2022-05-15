@@ -1,4 +1,6 @@
-import { ethers } from "ethers";
+import { Contract, ethers, Signer } from "ethers";
+import ballotJson from "../../artifacts/contracts/Ballot.sol/Ballot.json";
+import { Ballot } from "../../typechain";
 import "dotenv/config";
 
 export async function connectToBlockchain() {
@@ -27,4 +29,17 @@ export async function connectToBlockchain() {
 
 export function convertStringArrayToBytes32(stringArray: string[]) {
   return stringArray.map(ethers.utils.formatBytes32String);
+}
+
+export function getArg(position: number, errorMsg: string) {
+  if (process.argv.length < position + 1) throw new Error(errorMsg);
+  return process.argv[position];
+}
+
+export function connectToContract(ballotAddress: string, signer: Signer) {
+  console.log(
+    `Attaching ballot contract interface to address ${ballotAddress}`
+  );
+
+  return new Contract(ballotAddress, ballotJson.abi, signer) as Ballot;
 }

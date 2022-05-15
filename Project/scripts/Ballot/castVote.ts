@@ -1,23 +1,20 @@
 import "dotenv/config";
-
+import { ethers } from "ethers";
 import { connectToBlockchain, connectToContract, getArg } from "./utils";
 
 async function main() {
   const signer = await connectToBlockchain();
 
   const ballotAddress = getArg(2, "Ballot address missing");
-  const voterAddress = getArg(3, "Voter address missing");
+  const proposalIndex = getArg(3, "Proposal index missing");
   const ballotContract = connectToContract(ballotAddress, signer);
 
-  const chairpersonAddress = await ballotContract.chairperson();
+  const proposal = await ballotContract.proposals(proposalIndex);
 
-  if (chairpersonAddress !== signer.address) {
-    throw new Error("Caller is not the chairperson for this contract");
-  }
+  console.log(`Voting in "${ethers.utils.parseBytes32String(proposal.name)}"`);
 
-  console.log(`Giving right to vote to ${voterAddress}`);
-  const tx = await ballotContract.giveRightToVote(voterAddress);
-  console.log("Awaiting confirmations");
+  const tx = await ballotContract.vote(proposalIndex);
+  console.log("Awaiting confirmation");
   await tx.wait();
   console.log(`Transaction completed. Hash: ${tx.hash}`);
 }
