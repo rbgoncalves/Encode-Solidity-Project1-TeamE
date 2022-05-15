@@ -1,15 +1,15 @@
-import { ethers } from "ethers";
+import { Contract, ethers, Signer } from "ethers";
+import ballotJson from "../../artifacts/contracts/Ballot.sol/Ballot.json";
+import { Ballot } from "../../typechain";
 import "dotenv/config";
 
-export const EXPOSED_KEY =
-  "8da4ef21b864d2cc526dbdb2a120bd2874c36c9d0a1fb7f8c63d7f7a8b41de8f";
 export async function connectToBlockchain() {
-  const wallet =
-    process.env.MNEMONIC && process.env.MNEMONIC.length > 0
-      ? ethers.Wallet.fromMnemonic(process.env.MNEMONIC)
-      : new ethers.Wallet(process.env.PRIVATE_KEY ?? EXPOSED_KEY);
+  const wallet = new ethers.Wallet(
+    process.env.PRIVATE_KEY as ethers.utils.BytesLike
+  );
 
   console.log(`Using address ${wallet.address}`);
+
   const provider = ethers.providers.getDefaultProvider("ropsten", {
     etherscan: process.env.ETHERSCAN_API_KEY,
   });
@@ -19,16 +19,27 @@ export async function connectToBlockchain() {
   const balance = Number(ethers.utils.formatEther(balanceBN));
 
   console.log(`Wallet balance ${balance}`);
+
   if (balance < 0.01) {
     throw new Error("Not enough ether");
   }
+
   return signer;
 }
 
-export function convertStringArrayToBytes32(array: string[]) {
-  const bytes32Array = [];
-  for (let index = 0; index < array.length; index++) {
-    bytes32Array.push(ethers.utils.formatBytes32String(array[index]));
-  }
-  return bytes32Array;
+export function convertStringArrayToBytes32(stringArray: string[]) {
+  return stringArray.map(ethers.utils.formatBytes32String);
+}
+
+export function getArg(position: number, errorMsg: string) {
+  if (process.argv.length < position + 1) throw new Error(errorMsg);
+  return process.argv[position];
+}
+
+export function connectToContract(ballotAddress: string, signer: Signer) {
+  console.log(
+    `Attaching ballot contract interface to address ${ballotAddress}`
+  );
+
+  return new Contract(ballotAddress, ballotJson.abi, signer) as Ballot;
 }
