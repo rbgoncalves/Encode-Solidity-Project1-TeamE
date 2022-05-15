@@ -9,7 +9,14 @@ async function main() {
   const proposalIndex = getArg(3, "Proposal index missing");
   const ballotContract = connectToContract(ballotAddress, signer);
 
-  const proposal = await ballotContract.proposals(proposalIndex);
+  const [proposal, voter] = await Promise.all([
+    ballotContract.proposals(proposalIndex),
+    ballotContract.voters(signer.address),
+  ]);
+
+  if (voter.voted) {
+    throw new Error("Caller already voted");
+  }
 
   console.log(`Voting in "${ethers.utils.parseBytes32String(proposal.name)}"`);
 
