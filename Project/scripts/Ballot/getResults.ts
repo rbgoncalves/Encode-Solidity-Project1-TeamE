@@ -14,24 +14,13 @@ async function main() {
         ballotJson.abi,
         signer
     ) as Ballot;
-    const userInput = process.argv.slice(2);
-    if (userInput.length < 2) {
-        const proposalArray = ballotContract.proposals;
-        for (let index = 0; index < proposalArray.length; index++) {
-            getProposalVote(ballotContract, index);
-        }
-    }
-    else {
-        userInput.forEach(function (value) {
-            getProposalVote(ballotContract, Number(value));
-        });
-    }
 
 
+    const winner = await ballotContract.winnerName();
+    const winnerString = ethers.utils.parseBytes32String(winner);
+    console.log(`The winner is proposal ${winnerString}`);
 }
-async function getProposalVote(ballotContract: Ballot, index: number) {
-    const proposal = await ballotContract.proposals(index);
-    const proposalName = ethers.utils.parseBytes32String(proposal.name);
-    const proposalVoteCount = proposal.voteCount.toNumber();
-    console.log(`proposal ${proposalName} has ${proposalVoteCount}`);
-}
+main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+});
