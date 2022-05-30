@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.8.0 <0.9.0;
 
-/// @title Voting with delegation.
+/// @title A simple voting ballot 
+/// @author Rúben Gonçalves
+/// @notice You can use this contract for simple voting task such as, casting a vote, delegating a vote and giving voting rights
 contract Ballot {
     // This declares a new complex type which will
     // be used for variables later.
@@ -18,17 +20,16 @@ contract Ballot {
         bytes32 name; // short name (up to 32 bytes)
         uint256 voteCount; // number of accumulated votes
     }
-
+/// @notice This variable stores the address of the chairperson, who can give voting rights to other addresses
     address public chairperson;
 
-    // This declares a state variable that
-    // stores a `Voter` struct for each possible address.
+    /// @notice This declares a state variable that stores a `Voter` struct for each possible address.
     mapping(address => Voter) public voters;
 
-    // A dynamically-sized array of `Proposal` structs.
+    /// @notice This variable is a dynamically-sized array of `Proposal` structs.
     Proposal[] public proposals;
 
-    /// Create a new ballot to choose one of `proposalNames`.
+    /// @notice Create a new ballot to choose one of `proposalNames`.
     constructor(bytes32[] memory proposalNames) {
         chairperson = msg.sender;
         voters[chairperson].weight = 1;
@@ -44,8 +45,8 @@ contract Ballot {
         }
     }
 
-    // Give `voter` the right to vote on this ballot.
-    // May only be called by `chairperson`.
+    /// @notice given a voter address, give them voting rights if the function is called by the chairperson.
+    /// @param voter The address we want to give voting rights to 
     function giveRightToVote(address voter) external {
         // If the first argument of `require` evaluates
         // to `false`, execution terminates and all
@@ -66,7 +67,8 @@ contract Ballot {
         voters[voter].weight = 1;
     }
 
-    /// Delegate your vote to the voter `to`.
+    /// @notice Delegate the caller's vote to a given address
+    /// @param to The address we want to delegate our vote to
     function delegate(address to) external {
         // assigns reference
         Voter storage sender = voters[msg.sender];
@@ -108,8 +110,8 @@ contract Ballot {
         }
     }
 
-    /// Give your vote (including votes delegated to you)
-    /// to proposal `proposals[proposal].name`.
+    /// @notice Give the caller's votes (including the ones he was delegated to) to a given proposal
+    /// @param proposal The proposal number the caller wants to vote for
     function vote(uint256 proposal) external {
         Voter storage sender = voters[msg.sender];
         require(sender.weight != 0, "Has no right to vote");
@@ -125,6 +127,7 @@ contract Ballot {
 
     /// @dev Computes the winning proposal taking all
     /// previous votes into account.
+    /// @return winningProposal_ The index of the winning proposal
     function winningProposal() public view returns (uint256 winningProposal_) {
         uint256 winningVoteCount = 0;
         for (uint256 p = 0; p < proposals.length; p++) {
@@ -135,9 +138,8 @@ contract Ballot {
         }
     }
 
-    // Calls winningProposal() function to get the index
-    // of the winner contained in the proposals array and then
-    // returns the name of the winner
+/// @dev Calls the winningProposal function to get the winning proposal index
+/// @return winnerName_ The string name of the corresponding winning proposal
     function winnerName() external view returns (bytes32 winnerName_) {
         winnerName_ = proposals[winningProposal()].name;
     }
